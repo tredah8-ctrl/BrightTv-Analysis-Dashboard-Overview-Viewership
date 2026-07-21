@@ -68,100 +68,93 @@ Customer demographics influence viewing habits.
 Seasonal and monthly trends impact overall engagement.
 
 
-MY CTE EXAMPLE
+MY CTE EXAMPLE 
 
---CTE 
+WITH User_profile AS (
+    SELECT userid,
+        CASE 
+            WHEN Province = ' ' OR Province = 'None' THEN 'Uncategorized'
+            ELSE Province
+        END AS Region,
 
-WITH bright_coffee_shop AS(
-    SELECT transaction_id,
-CASE
-    WHEN transaction_qty = 1 THEN 'Single Item'
-    WHEN transaction_qty = 2 THEN 'Two Items'
-    ELSE 'Large Bulk'
-END AS Product_Qty_Category,
+        CASE 
+            WHEN Age = 0 THEN 'Infants'
+            WHEN Age BETWEEN 1 AND 12 THEN 'Children'
+            WHEN Age BETWEEN 13 AND 19 THEN 'Teens'
+            WHEN Age BETWEEN 20 AND 34 THEN 'Young Adults'
+            WHEN Age BETWEEN 35 AND 49 THEN 'Adults'
+            WHEN Age BETWEEN 50 AND 64 THEN 'Middle Aged'
+            WHEN Age BETWEEN 65 AND 74 THEN 'Seniors'
+            WHEN Age BETWEEN 75 AND 84 THEN 'Elderly'
+            WHEN Age > 84 THEN 'Very Elderly'
+        END AS Age_Group,
 
-CASE
-    WHEN store_location = 'Lower Manhattan' THEN 'Downtown'
-    WHEN store_location ILIKE 'Hells Kitchen'THEN 'Midtown'
-    ELSE 'Other'
-END AS Store_Region,
+        CASE 
+            WHEN Race IN ('other',' ') THEN 'NONE'
+            ELSE Race
+        END AS Race,
 
-CASE
-    WHEN product_category IN ('Coffee', 'Tea', 'Drinking Chocolate')
-        THEN 'Beverages'
-    WHEN product_category = 'Bakery'
-        THEN 'Food'
-    ELSE 'Other'
-END AS Product_Group,
+        CASE 
+            WHEN Gender = ' ' OR Gender LIKE '%None%' THEN 'Unknown'
+            ELSE Gender 
+        END AS Gender,
 
-CASE  
-      DATE_FORMAT(,'HH:mm:ss') AS Watch_Time,
+        CASE
+            WHEN Email IS NOT NULL AND Email NOT IN ('NONE',' ') THEN 1
+            ELSE 0
+        END AS email_flag,
+
+        CASE
+            WHEN `Social Media Handle` IS NOT NULL 
+                 AND `Social Media Handle` NOT IN ('NONE',' ')
+            THEN 1
+            ELSE 0
+        END AS SM_Flag
+
+    FROM bright_tv_dataset.brighttv_dataset.bright_tv_userprofile
+),
+
+Viewership AS (
+    SELECT
+        COALESCE(userID4, UserID0) AS User_id,
+
+        DAYNAME(RecordDate2) AS Day_name,
+        HOUR(RecordDate2) AS Hour_of_Day,
+
+        TO_CHAR(RecordDate2, 'yyyyMM') AS month_id,
+        TO_DATE(RecordDate2) AS Watch_date,
+
+        MONTHNAME(RecordDate2) AS Month_Name,
+
+        CASE 
+            WHEN DAYNAME(RecordDate2) IN ('Sat','Sun') THEN 'Weekend'
+            ELSE 'Weekday'
+        END AS Day_classification,
+
+        CASE 
+            WHEN Channel2 IN ('SawSee','Sawsee') THEN 'SawSee'
+            WHEN Channel2 IN ('SuperSport Live Events',
+                              'Live on SuperSport',
+                              'DSTV Events 1')
+            THEN 'Live Events'
+            ELSE Channel2
+        END AS TV_Channel,
+
+        DATE_FORMAT(RecordDate2,'HH:mm:ss') AS Watch_Time,
         DATE_FORMAT(`Duration 2`,'HH:mm:ss') AS Duration,
+
 ROUND(
     HOUR(`Duration 2`) * 60 +
     MINUTE(`Duration 2`) +
     SECOND(`Duration 2`) / 60,
     2
 ) AS Duration_Minute
-
-CASE
-    WHEN unit_price < 3 THEN 'Budget'
-    WHEN unit_price BETWEEN 3 AND 4 THEN 'Standard'
-    WHEN unit_price > 4 THEN 'Premium'
-END AS Price_Range
-
-FROM `workspace`.`default`.`bright_coffee_shop`
-        
-);
-
-SELECT *
-FROM `workspace`.`default`.`bright_coffee_shop`;
-
-
-
-WITH bright_coffee_shop AS (
-SELECT
-    transaction_id,
-
-    CASE
-        WHEN transaction_qty = 1 THEN 'Single Item'
-        WHEN transaction_qty = 2 THEN 'Two Items'
-        ELSE 'Large Bulk'
-    END AS Product_Qty_Category,
-
-    CASE
-        WHEN store_location = 'Lower Manhattan' THEN 'Downtown'
-        WHEN store_location ILIKE 'Hells Kitchen' THEN 'Midtown'
-        ELSE 'Other'
-    END AS Store_Region,
-
-    CASE
-        WHEN product_category IN ('Coffee','Tea','Drinking Chocolate') THEN 'Beverages'
-        WHEN product_category = 'Bakery' THEN 'Food'
-        ELSE 'Other'
-    END AS Product_Group,
-CASE 
-
-    WHEN dayname(transaction_time ) IN ('Sat','Sun') THEN 'Weekend'
-    ELSE 'Weekday'
-END AS Weekday,
-
-CASE 
-    WHEN HOUR(transaction_time) BETWEEN 00 AND 08 THEN 'Morning' 
-            WHEN HOUR(transaction_time) BETWEEN 08 AND 16 THEN 'Afternoon'
-            WHEN HOUR(transaction_time) BETWEEN 17 AND 20 THEN 'Evening'
-            ELSE 'Night'
-        END AS Time_Classification,
-
-    CASE
-        WHEN unit_price < 3 THEN 'Budget'
-        WHEN unit_price BETWEEN 3 AND 4 THEN 'Standard'
-        ELSE 'Premium'
-    END AS Price_Range
-
-FROM `workspace`.`default`.`bright_coffee_shop`
+    FROM bright_tv_dataset.brighttv_userprofile.bright_tv_dataset_viewership
 )
 
-SELECT *
-FROM bright_coffee_shop;
+SELECT A.*, B.*
+FROM Viewership A
+LEFT JOIN User_profile B
+ON A.User_id = B.userid;
+
    
