@@ -66,4 +66,102 @@ Weekend viewing patterns differ from weekday behaviour.
 Certain TV channels consistently attract higher audiences.
 Customer demographics influence viewing habits.
 Seasonal and monthly trends impact overall engagement.
+
+
+MY CTE EXAMPLE
+
+--CTE 
+
+WITH bright_coffee_shop AS(
+    SELECT transaction_id,
+CASE
+    WHEN transaction_qty = 1 THEN 'Single Item'
+    WHEN transaction_qty = 2 THEN 'Two Items'
+    ELSE 'Large Bulk'
+END AS Product_Qty_Category,
+
+CASE
+    WHEN store_location = 'Lower Manhattan' THEN 'Downtown'
+    WHEN store_location ILIKE 'Hells Kitchen'THEN 'Midtown'
+    ELSE 'Other'
+END AS Store_Region,
+
+CASE
+    WHEN product_category IN ('Coffee', 'Tea', 'Drinking Chocolate')
+        THEN 'Beverages'
+    WHEN product_category = 'Bakery'
+        THEN 'Food'
+    ELSE 'Other'
+END AS Product_Group,
+
+CASE  
+      DATE_FORMAT(,'HH:mm:ss') AS Watch_Time,
+        DATE_FORMAT(`Duration 2`,'HH:mm:ss') AS Duration,
+ROUND(
+    HOUR(`Duration 2`) * 60 +
+    MINUTE(`Duration 2`) +
+    SECOND(`Duration 2`) / 60,
+    2
+) AS Duration_Minute
+
+CASE
+    WHEN unit_price < 3 THEN 'Budget'
+    WHEN unit_price BETWEEN 3 AND 4 THEN 'Standard'
+    WHEN unit_price > 4 THEN 'Premium'
+END AS Price_Range
+
+FROM `workspace`.`default`.`bright_coffee_shop`
+        
+);
+
+SELECT *
+FROM `workspace`.`default`.`bright_coffee_shop`;
+
+
+
+WITH bright_coffee_shop AS (
+SELECT
+    transaction_id,
+
+    CASE
+        WHEN transaction_qty = 1 THEN 'Single Item'
+        WHEN transaction_qty = 2 THEN 'Two Items'
+        ELSE 'Large Bulk'
+    END AS Product_Qty_Category,
+
+    CASE
+        WHEN store_location = 'Lower Manhattan' THEN 'Downtown'
+        WHEN store_location ILIKE 'Hells Kitchen' THEN 'Midtown'
+        ELSE 'Other'
+    END AS Store_Region,
+
+    CASE
+        WHEN product_category IN ('Coffee','Tea','Drinking Chocolate') THEN 'Beverages'
+        WHEN product_category = 'Bakery' THEN 'Food'
+        ELSE 'Other'
+    END AS Product_Group,
+CASE 
+
+    WHEN dayname(transaction_time ) IN ('Sat','Sun') THEN 'Weekend'
+    ELSE 'Weekday'
+END AS Weekday,
+
+CASE 
+    WHEN HOUR(transaction_time) BETWEEN 00 AND 08 THEN 'Morning' 
+            WHEN HOUR(transaction_time) BETWEEN 08 AND 16 THEN 'Afternoon'
+            WHEN HOUR(transaction_time) BETWEEN 17 AND 20 THEN 'Evening'
+            ELSE 'Night'
+        END AS Time_Classification,
+
+    CASE
+        WHEN unit_price < 3 THEN 'Budget'
+        WHEN unit_price BETWEEN 3 AND 4 THEN 'Standard'
+        ELSE 'Premium'
+    END AS Price_Range
+
+FROM `workspace`.`default`.`bright_coffee_shop`
+)
+
+SELECT *
+FROM bright_coffee_shop;
    
