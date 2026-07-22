@@ -61,7 +61,6 @@ Overall customer viewing patterns.
 Key Insights
 
 7. Some of the insights identified include:
-8. 
 Peak viewing hours occur during specific times of the day.
 Weekend viewing patterns differ from weekday behaviour.
 Certain TV channels consistently attract higher audiences.
@@ -69,7 +68,7 @@ Customer demographics influence viewing habits.
 Seasonal and monthly trends impact overall engagement.
 
 
-MY CTE EXAMPLE 
+8.MY CTE EXAMPLE 
 
 WITH User_profile AS (
     SELECT userid,
