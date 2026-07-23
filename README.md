@@ -1,6 +1,6 @@
 BrightTV Viewership Analysis
 https://lovable.dev/projects/ef63df46-d939-4b2e-a91a-aa0a24a7a4dc
-
+Portfolio Link https://hitekanimasingiportfolio.lovable.app
 1. Project Overview
 
 This project analyzes BrightTV viewership data to understand customer viewing behaviour, identify trends in content consumption, and provide data-driven recommendations to help increase user engagement and grow the subscriber base.
